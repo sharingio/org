@@ -1,0 +1,89 @@
+#+TITLE: Upgrade to CAPI v1.1.3
+#+PROPERTY: header-args:shell+ :prologue "( " :epilogue " ) 2>&1 ; :" :wrap "src shell :eval no" :export both
+
+* Notes
+
+Currently the version of CAPI used in pair.sharing.io is rather old and the latest version of CAPI is supported with Equinix Metal so can be upgraded. I've made changes
+
+* Current status
+
+Change context
+#+begin_src shell :results silent
+kubectx sharingiopair-admin@sharingiopair
+#+end_src
+
+See what's available
+#+begin_src shell
+clusterctl upgrade plan
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Cert-Manager will be upgraded from "v1.1.0" to "v1.5.3"
+
+
+Latest release available for the v1alpha3 API Version of Cluster API (contract):
+
+NAME                    NAMESPACE                            TYPE                     CURRENT VERSION   NEXT VERSION
+bootstrap-kubeadm       capi-kubeadm-bootstrap-system        BootstrapProvider        v0.3.24           v0.3.25
+control-plane-kubeadm   capi-kubeadm-control-plane-system    ControlPlaneProvider     v0.3.24           v0.3.25
+cluster-api             capi-system                          CoreProvider             v0.3.24           v0.3.25
+infrastructure-packet   cluster-api-provider-packet-system   InfrastructureProvider   v0.3.11           Already up to date
+
+The current version of clusterctl could not upgrade to v1alpha3 contract (only v1beta1 supported).
+
+
+Latest release available for the v1beta1 API Version of Cluster API (contract):
+
+NAME                    NAMESPACE                            TYPE                     CURRENT VERSION   NEXT VERSION
+bootstrap-kubeadm       capi-kubeadm-bootstrap-system        BootstrapProvider        v0.3.24           v1.1.3
+control-plane-kubeadm   capi-kubeadm-control-plane-system    ControlPlaneProvider     v0.3.24           v1.1.3
+cluster-api             capi-system                          CoreProvider             v0.3.24           v1.1.3
+infrastructure-packet   cluster-api-provider-packet-system   InfrastructureProvider   v0.3.11           v0.5.0
+
+You can now apply the upgrade by executing the following command:
+
+clusterctl upgrade apply --contract v1beta1
+
+#+end_example
+
+~~Perform a backup~~
+#+begin_src tmate :window capi
+clusterctl backup --directory=./backup
+#+end_src
+This is only available once in beta
+
+Perform an upgrade
+#+begin_src tmate :window capi
+clusterctl upgrade apply --contract v1beta1
+#+end_src
+
+Output
+#+begin_example
+Checking cert-manager version...
+Deleting cert-manager Version="v1.1.0"
+Installing cert-manager Version="v1.5.3"
+Waiting for cert-manager to be available...
+Performing upgrade...
+Scaling down Provider="cluster-api" Version="v0.3.24" Namespace="capi-system"
+Scaling down Provider="bootstrap-kubeadm" Version="v0.3.24" Namespace="capi-kubeadm-bootstrap-system"
+Scaling down Provider="control-plane-kubeadm" Version="v0.3.24" Namespace="capi-kubeadm-control-plane-system"
+Scaling down Provider="infrastructure-packet" Version="v0.3.11" Namespace="cluster-api-provider-packet-system"
+Deleting Provider="cluster-api" Version="v0.3.24" Namespace="capi-system"
+Installing Provider="cluster-api" Version="v1.1.3" TargetNamespace="capi-system"
+Deleting Provider="bootstrap-kubeadm" Version="v0.3.24" Namespace="capi-kubeadm-bootstrap-system"
+Installing Provider="bootstrap-kubeadm" Version="v1.1.3" TargetNamespace="capi-kubeadm-bootstrap-system"
+Deleting Provider="control-plane-kubeadm" Version="v0.3.24" Namespace="capi-kubeadm-control-plane-system"
+Installing Provider="control-plane-kubeadm" Version="v1.1.3" TargetNamespace="capi-kubeadm-control-plane-system"
+Error: failed to perform variable substitution: value for variables [PACKET_API_KEY] is not set. Please set the value using os environment variables or the clusterctl config file
+#+end_example
+
+I forgot to set the ~$PACKET_API_KEY~ variable, so ran it again
+#+begin_example
+Checking cert-manager version...
+Cert-manager is already up to date
+Performing upgrade...
+Scaling down Provider="infrastructure-packet" Version="v0.3.11" Namespace="cluster-api-provider-packet-system"
+Deleting Provider="infrastructure-packet" Version="v0.3.11" Namespace="cluster-api-provider-packet-system"
+Installing Provider="infrastructure-packet" Version="v0.5.0" TargetNamespace="cluster-api-provider-packet-system"
+#+end_example
