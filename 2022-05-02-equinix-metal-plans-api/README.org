@@ -5,6 +5,9 @@
 An endpoint on the equinix metal API for querying machine types and their availability
 #+end_quote
 
+* Docs
+- https://metal.equinix.com/developers/api/plans/
+
 * Finding c3.medium.x86 machines
 
 #+begin_src shell :wrap "src json"
@@ -179,6 +182,31 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
       "name": "Chicago",
       "code": "ch",
       "country": "US"
+    }
+  ]
+}
+#+end_src
+
+Are there around 50 c2.medium.x86s in sjc1?
+#+begin_src shell :wrap "src json"
+export API_TOKEN="$(pass services/packet.net/api-key)"
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "X-Auth-Token: ${API_TOKEN}" \
+    https://api.equinix.com/metal/v1/capacity?include=quantity \
+    -d '{"servers": [{"facility": "sjc1","plan": "c2.medium.x86", "quantity": 50}]}' | jq .
+#+end_src
+
+Yes!
+#+RESULTS:
+#+begin_src json
+{
+  "servers": [
+    {
+      "facility": "sjc1",
+      "plan": "c2.medium.x86",
+      "quantity": 50,
+      "available": true
     }
   ]
 }
