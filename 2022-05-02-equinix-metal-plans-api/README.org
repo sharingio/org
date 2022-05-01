@@ -7,25 +7,25 @@ An endpoint on the equinix metal API for querying machine types and their availa
 
 * Finding c3.medium.x86 machines
 
-#+begin_src shell
+#+begin_src shell :wrap "src json"
 export API_TOKEN="$(pass services/packet.net/api-key)"
 curl -X GET -H "X-Auth-Token: $API_TOKEN" \
-https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros | jq '.plans[] | select(.slug=="c3.medium.x86")'
+https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros | jq '.plans[] | select(.slug=="c2.medium.x86")'
 #+end_src
 
 #+RESULTS:
-#+begin_example
+#+begin_src json
 {
-  "id": "359ba4aa-6353-4480-bce2-a6dcd5a69aaa",
-  "slug": "c3.medium.x86",
-  "name": "c3.medium.x86",
-  "description": "A killer general-purpose compute box with 24 high-performance AMD EPYC cores and 64GB RAM",
+  "id": "5aeee4f9-1137-4514-8f3e-a1e103b02966",
+  "slug": "c2.medium.x86",
+  "name": "c2.medium.x86",
+  "description": "Our c2.medium.x86 configuration is a killer general-purpose compute with 24 high-performance AMD EPYC 7401P cores @ 2.8GHz.",
   "line": "baremetal",
   "specs": {
     "cpus": [
       {
         "count": 1,
-        "type": "AMD EPYC 7402P 24-Core Processor"
+        "type": "AMD EPYC 7401P 24-Core Processor @ 2.0GHz"
       }
     ],
     "memory": {
@@ -34,7 +34,7 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
     "drives": [
       {
         "count": 2,
-        "size": "240GB",
+        "size": "120GB",
         "type": "SSD",
         "category": "boot"
       },
@@ -51,45 +51,21 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
         "type": "10Gbps"
       }
     ],
-    "features": {
-      "raid": true,
-      "txt": true
-    }
+    "features": {}
   },
   "legacy": true,
   "deployment_types": [
     "on_demand",
     "spot_market"
   ],
-  "class": "c3.medium.x86",
+  "class": "c2.medium.x86",
   "pricing": {
-    "hour": 1.1
+    "hour": 1.0
   },
-  "reservation_pricing": {
-    "one_year": {
-      "month": 742.8
-    },
-    "three_year": {
-      "month": 682.55
-    },
-    "sp": {
-      "one_year": {
-        "month": 1114.0
-      },
-      "three_year": {
-        "month": 1024.0
-      }
-    }
-  },
+  "reservation_pricing": {},
   "available_in": [
     {
-      "href": "/metal/v1/facilities/2e5c0397-a0c7-4fc2-a4ab-828425472fcb"
-    },
-    {
       "href": "/metal/v1/facilities/917e9941-8323-487f-8688-2b0b11baacd4"
-    },
-    {
-      "href": "/metal/v1/facilities/d37a89ba-5d74-4ea6-b30c-3464b4b20683"
     },
     {
       "href": "/metal/v1/facilities/d2244149-b87a-4934-b102-b826e403ca31"
@@ -101,31 +77,16 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
       "href": "/metal/v1/facilities/917c709b-bcd9-4878-9be3-0ce5a071e4a8"
     },
     {
-      "href": "/metal/v1/facilities/387c1ab8-3cc3-408e-8a96-93a873cc1e50"
-    },
-    {
-      "href": "/metal/v1/facilities/b88fcd02-0eff-4bc2-9953-924f24a138da"
-    },
-    {
-      "href": "/metal/v1/facilities/3d22b3bd-a239-4e10-8be8-615e1f323dde"
-    },
-    {
       "href": "/metal/v1/facilities/134b9e4c-5830-45f9-89ce-3757853fcf77"
     },
     {
-      "href": "/metal/v1/facilities/353a2477-ce18-42d4-aab9-ad53f7a82fee",
-      "price": {
-        "hour": 1.65
-      }
+      "href": "/metal/v1/facilities/2b70eb8f-fa18-47c0-aba7-222a842362fd"
     },
     {
-      "href": "/metal/v1/facilities/3576541d-3278-4bad-ba07-4a88ce986cad"
+      "href": "/metal/v1/facilities/1c4455e6-c7cf-4cc5-a386-fe52ffc57ae7"
     },
     {
       "href": "/metal/v1/facilities/8a09aa8d-b732-46b2-9dca-a20893b3ab32"
-    },
-    {
-      "href": "/metal/v1/facilities/8e6470b3-b75e-47d1-bb93-45b225750975"
     },
     {
       "href": "/metal/v1/facilities/c9dcbd06-6797-4096-b648-1be16dd5d833"
@@ -134,44 +95,23 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
       "href": "/metal/v1/facilities/20f3bf20-58dd-467d-bfaa-c5e0afd4b1b2"
     },
     {
-      "href": "/metal/v1/facilities/5068df0b-93a6-4e81-b724-cdbf48e53073"
+      "href": "/metal/v1/facilities/8ea03255-89f9-4e62-9d3f-8817db82ceed"
     },
     {
-      "href": "/metal/v1/facilities/3b095113-a2c7-4fe9-bda7-2e7e78d96a1f"
+      "href": "/metal/v1/facilities/656d6af1-83dc-450e-a8d3-613ce0ebe273"
     },
     {
-      "href": "/metal/v1/facilities/d2a72094-26c9-4372-8d65-051424bc370a"
-    },
-    {
-      "href": "/metal/v1/facilities/b96126f9-156a-43cd-a044-997082ec07eb"
+      "href": "/metal/v1/facilities/e1e9c52e-a0bc-4117-b996-0fc94843ea09"
     },
     {
       "href": "/metal/v1/facilities/30ad1492-f715-4cb0-9b1d-bb20718dd87f"
-    },
-    {
-      "href": "/metal/v1/facilities/cbb790c1-812f-462a-8597-7229f35dc995"
-    },
-    {
-      "href": "/metal/v1/facilities/cbdaaaa4-64e4-40fc-b75f-428938ea85ce"
     }
   ],
   "available_in_metros": [
     {
-      "id": "f6ada324-8226-4bfc-99a8-453d47caf2dc",
-      "name": "Singapore",
-      "code": "sg",
-      "country": "SG"
-    },
-    {
       "id": "2991b022-b8c4-497e-8db7-5a407c3a209b",
       "name": "Silicon Valley",
       "code": "sv",
-      "country": "US"
-    },
-    {
-      "id": "96a57b6d-c62c-41b5-ab8e-f8d63a7f9887",
-      "name": "Washington DC",
-      "code": "dc",
       "country": "US"
     },
     {
@@ -187,15 +127,33 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
       "country": "HK"
     },
     {
-      "id": "d3d6b29f-042d-43b7-b3ce-0bf53d5754ca",
-      "name": "Dallas",
-      "code": "da",
+      "id": "f6ada324-8226-4bfc-99a8-453d47caf2dc",
+      "name": "Singapore",
+      "code": "sg",
+      "country": "SG"
+    },
+    {
+      "id": "bf85ddfa-d2fc-4050-8711-165e7621546c",
+      "name": "Madrid",
+      "code": "md",
+      "country": "ES"
+    },
+    {
+      "id": "bb059cc0-0b2a-4f5b-8a55-219e6b4240da",
+      "name": "Los Angeles",
+      "code": "la",
       "country": "US"
     },
     {
-      "id": "b8ffa6c9-3da2-4cf1-b48d-049002b208fe",
-      "name": "Seattle",
-      "code": "se",
+      "id": "96a57b6d-c62c-41b5-ab8e-f8d63a7f9887",
+      "name": "Washington DC",
+      "code": "dc",
+      "country": "US"
+    },
+    {
+      "id": "d3d6b29f-042d-43b7-b3ce-0bf53d5754ca",
+      "name": "Dallas",
+      "code": "da",
       "country": "US"
     },
     {
@@ -205,43 +163,16 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
       "country": "US"
     },
     {
-      "id": "bf85ddfa-d2fc-4050-8711-165e7621546c",
-      "name": "Madrid",
-      "code": "md",
-      "country": "ES"
+      "id": "5f72cbf6-96e4-44f2-ae60-213888fa2b9f",
+      "name": "Tokyo",
+      "code": "ty",
+      "country": "JP"
     },
     {
-      "id": "049021c1-38b2-4040-8b9b-e8d616aebf0f",
-      "name": "Sao Paulo",
-      "code": "sp",
-      "country": "BR",
-      "price": {
-        "hour": 1.85
-      }
-    },
-    {
-      "id": "b1ac82b2-616c-4405-9424-457ef6edf9ae",
-      "name": "Frankfurt",
-      "code": "fr",
-      "country": "DE"
-    },
-    {
-      "id": "108b2cfb-246b-45e3-885a-bf3e82fce1a0",
-      "name": "Amsterdam",
-      "code": "am",
-      "country": "NL"
-    },
-    {
-      "id": "d2f09853-a1aa-4b29-aa9d-682462fd8d1d",
-      "name": "Sydney",
-      "code": "sy",
-      "country": "AU"
-    },
-    {
-      "id": "f2f0f0b3-5359-4296-a402-56abad842f56",
-      "name": "Paris",
-      "code": "pa",
-      "country": "FR"
+      "id": "d2a8e94f-2b42-4440-9c8e-8ef01defcd27",
+      "name": "Seoul",
+      "code": "sl",
+      "country": "KR"
     },
     {
       "id": "60666d92-e00f-43a8-a9f8-fddf665390ca",
@@ -251,4 +182,4 @@ https://api.equinix.com/metal/v1/plans?include=specs,pricing,available_in_metros
     }
   ]
 }
-#+end_example
+#+end_src
