@@ -1,4 +1,5 @@
 #+TITLE: YYYY-mm-dd
+#+PROPERTY: header-args:shell+ :prologue "( " :epilogue " ) 2>&1 ; :" :wrap "src shell :eval no" :export both
 
 * Notes
 
