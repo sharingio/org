@@ -1,0 +1,81 @@
+#+TITLE: 2022-05-02
+
+* Notes
+
+Instances aren't provisioning. One instance after 2h still isn't provisioned and doesn't even get provided an SSH SOS link
+
+* Exploration
+
+Change the content to Pair
+#+begin_src shell
+kubectx sharingiopair-admin@sharingiopair
+#+end_src
+
+#+RESULTS:
+#+begin_example
+#+end_example
+
+How are the pair components
+#+begin_src shell
+kubectl -n sharingio-pair get pods
+#+end_src
+
+#+RESULTS:
+#+begin_example
+NAME                                               READY   STATUS    RESTARTS   AGE
+sharingio-pair-client-5598677f95-5dww5             1/1     Running   0          31d
+sharingio-pair-client-5598677f95-nr2sc             1/1     Running   0          31d
+sharingio-pair-client-5598677f95-x6bmw             1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-696b4   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-8hmmk   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-dc7mx   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-klrqh   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-l4gsb   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-n4jwl   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-t8wmx   1/1     Running   0          31d
+sharingio-pair-clusterapimanager-db5c68595-vln9r   1/1     Running   2          31d
+sharingio-pair-clusterapimanager-db5c68595-xwrpc   1/1     Running   0          31d
+sharingio-pair-reconciler-86b8c4b95f-b8zwd         1/1     Running   0          31d
+sharingio-pair-registry-66b956746d-svfzs           1/1     Running   0          137d
+#+end_example
+
+Nothing's been updated in over a month.
+
+Do the CAPI resources appear for the requested instances
+#+begin_src shell
+kubectl -n sharingio-pair get clusters,packetmachines
+#+end_src
+
+#+RESULTS:
+#+begin_example
+NAME                                PHASE
+cluster.cluster.x-k8s.io/e2e        Provisioned
+cluster.cluster.x-k8s.io/graceful   Provisioned
+cluster.cluster.x-k8s.io/ii         Provisioned
+cluster.cluster.x-k8s.io/riaankl    Provisioned
+
+NAME                                                                         CLUSTER    STATE   READY   INSTANCEID                                            MACHINE
+packetmachine.infrastructure.cluster.x-k8s.io/e2e-control-plane-6xvvc        e2e                                                                              e2e-control-plane-fbh7p
+packetmachine.infrastructure.cluster.x-k8s.io/graceful-control-plane-bqzxx   graceful           true    equinixmetal://93218bd6-8822-4370-8428-3d3bdd4fb8b9   graceful-control-plane-bj927
+packetmachine.infrastructure.cluster.x-k8s.io/ii-control-plane-5q6lf         ii                 true    equinixmetal://900d8435-a857-4c88-bf29-e6a255ebf3c5   ii-control-plane-mgncd
+packetmachine.infrastructure.cluster.x-k8s.io/riaankl-control-plane-vw5sw    riaankl                                                                          riaankl-control-plane-bc4gl
+#+end_example
+
+I see that the /e2e/ and /riaankl/ ones don't have an INSTANCEID or READY assigned.
+
+Get the status for riaankl-*
+#+begin_src shell
+kubectl -n sharingio-pair describe packetmachine.infrastructure.cluster.x-k8s.io/riaankl-control-plane-vw5sw | tail -n 4
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Status:
+  Error Message:  failed to create machine riaankl-control-plane-vw5sw: POST https://api.equinix.com/metal/v1/projects/7a44b778-41d2-49fa-9c92-99148516c600/devices: 503 The facility sjc1 has no provisionable m1.xlarge.x86 servers matching your criteria
+  Error Reason:   CreateError
+Events:           <none>
+#+end_example
+
+* Resolution summary
+Equinix Metal don't have anymore instances of this size available in sjc1.
+A new region and/or server type must be chosen.
