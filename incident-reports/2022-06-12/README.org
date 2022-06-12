@@ -1,0 +1,65 @@
+#+TITLE: 2022-06-12
+#+AUTHOR: Caleb Woodbine <caleb@ii.coop>
+#+PROPERTY: header-args:shell+ :prologue "( " :epilogue " ) 2>&1 ; :" :wrap "src shell :eval no" :export both
+
+* Notes
+An instance appears to be lying around which failed to provision, named /foobarbaz/.
+There is no SOS link or any information about the instance on the Pair page.
+
+* Exploration
+Here listing the packetmachines and clusters, nothing shows up for /foobarbaz/
+#+begin_src shell
+KUBECONFIG=<(pass notes/kubeconfig) kubectl --context sharingiopair-admin@sharingiopair --server https://139.178.69.71:6443 -n sharingio-pair get packetmachines,clusters
+#+end_src
+
+#+RESULTS:
+#+begin_src shell :eval no
+NAME                                                                                              CLUSTER                         STATE   READY   INSTANCEID                                            MACHINE
+packetmachine.infrastructure.cluster.x-k8s.io/bobymcbobs-control-plane-h4gp4                      bobymcbobs                              true    equinixmetal://69317142-85dd-4b09-be10-e88d06fbff1a   bobymcbobs-control-plane-frcqq
+packetmachine.infrastructure.cluster.x-k8s.io/caleb-for-europe-please-leave-control-plane-f8x5h   caleb-for-europe-please-leave           true    equinixmetal://d30fe305-8e08-494f-b7c2-075d1cb475b7   caleb-for-europe-please-leave-control-plane-tqd47
+packetmachine.infrastructure.cluster.x-k8s.io/e2e-cr-control-plane-qkhlk                          e2e-cr                                  true    equinixmetal://15de477c-1132-4ad1-a2e3-638e309eaf4b   e2e-cr-control-plane-8z22t
+packetmachine.infrastructure.cluster.x-k8s.io/ii-control-plane-5q6lf                              ii                                      true    equinixmetal://900d8435-a857-4c88-bf29-e6a255ebf3c5   ii-control-plane-mgncd
+packetmachine.infrastructure.cluster.x-k8s.io/k1-control-plane-4p29s                              k1                                      true    equinixmetal://012355f1-e007-432e-a9df-08b11e386e55   k1-control-plane-pxtks
+
+NAME                                                     PHASE         AGE     VERSION
+cluster.cluster.x-k8s.io/bobymcbobs                      Provisioned   24d
+cluster.cluster.x-k8s.io/caleb-for-europe-please-leave   Provisioned   33d
+cluster.cluster.x-k8s.io/e2e-cr                          Provisioned   33d
+cluster.cluster.x-k8s.io/ii                              Provisioned   74d
+cluster.cluster.x-k8s.io/k1                              Provisioned   4d19h
+#+end_src
+
+This means that there's other related resources that are making this list up in the interface.
+
+I'm currently using my travel laptop so because of how it's set up this command would be reduced (see the following).
+Let's get all Cluster-API resources that matches /foobarbaz/
+#+begin_src shell
+KUBECONFIG=<(pass notes/kubeconfig) kubectl --context sharingiopair-admin@sharingiopair --server https://139.178.69.71:6443 -n sharingio-pair get $(KUBECONFIG=<(pass notes/kubeconfig) kubectl --context sharingiopair-admin@sharingiopair --server https://139.178.69.71:6443 api-resources | grep -E 'x-k8s|sidero' | awk '{print $1}' | xargs | tr ' ' ',') | grep foobarbaz
+#+end_src
+(please note: somethings up with the server address for the context in my kubeconfig from pass for Pair)
+
+#+RESULTS:
+#+begin_src shell :eval no
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io/foobarbaz-control-plane                                                       false         false                  0          0       0         0             31d     v1.23.5
+#+end_src
+
+(alternate version)
+#+begin_example shell
+kubectl --context sharingiopair-admin@sharingiopair -n sharingio-pair get $(kubectl --context sharingiopair-admin@sharingiopair api-resources | grep -E 'x-k8s|sidero' | awk '{print $1}' | xargs | tr ' ' ',') | grep foobarbaz
+#+end_example
+
+Here it's shown that there's a /kubeadmcontrolplane/ resource for /foobarbaz/ lying around and perhaps the other resources failed to post at the time.
+I remember there was some issue a month ago regarding the cluster-api-provider-packet pod crashloopbackoff'ing.
+
+Let's delete this resource
+#+begin_src shell
+KUBECONFIG=<(pass notes/kubeconfig) kubectl --context sharingiopair-admin@sharingiopair --server https://139.178.69.71:6443 -n sharingio-pair delete kubeadmcontrolplane.controlplane.cluster.x-k8s.io/foobarbaz-control-plane
+#+end_src
+
+#+RESULTS:
+#+begin_src shell :eval no
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io "foobarbaz-control-plane" deleted
+#+end_src
+
+* Resolution summary
+There was a resource relating to this instance that was lying around for some reason and it was removed.
