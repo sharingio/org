@@ -1,0 +1,41 @@
+#+title: Readme
+
+* Purpose
+Set out big picture design of Pair and the initial Persona it is designed for.
+* Definitions
+** Instance
+** Pair
+** Sharingio
+* Similar Services and how we compare
+- gitpod
+- github codespaces
+- katacode
+- github devops something where you can write code
+* Our Purpose Statement
+shareable pairing environments
+
+- Open Source (Apache-2.0)
+- Community oriented
+- Customisable
+- Not a product / not for sale
+- Kubernetes-native
+- Bundles a great number of CNCF projects
+- Focused on Pairing and Sharing
+- Running on bare metal
+* Our User Persona
+- developers and software engineers
+- familiar with kubernetes
+- devOps and devOps adjacent
+   - maybe just working on software, but care about how that software works in a production cluster environment
+- part of some team/organization
+- working on codebase together, and want to see codebase deployed in cluster and iterate from there
+- familiar with emacs?
+* Big Picture Architecture
+** Pair API
+** Provider API
+** Client
+*** Web Client
+*** CLI
+* Current good features
+- Built with Cluster-API
+- Infra kindly backed by the lovely folks of Equinix Metal
