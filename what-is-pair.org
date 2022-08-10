@@ -1,0 +1,251 @@
+#+title: What is Pair?
+#+date: <2022-08-08 Mon>
+
+A description of our Pair service. This is not a description of "what should
+or could be", but how Pair exists now.
+
+* Key Terms
+- Pair :: This refers to the code and service held at
+  https://github.com/sharingio/pair, at the time of this writing and to the code
+  and customizations held at https://github.com/sharingio/.sharing.io. That
+  means, specifically, the code (and resulting programs) from the codebase at
+  commit [[https://github.com/sharingio/pair/commit/a473a19c1c69cafc21d7660f7d101ebea134402f][a473a19c1c69cafc21d7660f7d101ebea134402f]] (for pair) and commit
+  [[https://github.com/sharingio/.sharing.io/commit/22eb981967244d7031548c1aa66e66f01b9a681b][22eb981967244d7031548c1aa66e66f01b9a681b]] for .sharing.io
+- Environment ::
+  The contained environment designed for the work that
+  happens when using Pair. It is a pod within the pair instance that we
+  configure for a highly opininiated form of development and pairing.
+  In this case, I am talking of code held at github.com/sharingio/environment,
+  at commit [[https://github.com/sharingio/environment/commit/f8dad1fe163151a4cae0bf4b962fb55a655416c0][f8dad1fe163151a4cae0bf4b962fb55a655416c0]]
+
+* What is Pair?
+Pair is a mechanism for creating kubernetes clusters on Equinix bare metal
+servers through a simple interface. These clusters will come with services and
+settings "pre-installed" to improve developer ergonomics, especially when pair
+programming with a remote pair.
+
+The services that are pre-installed on the cluster are a combination of ones:
+- chosen by the Pair team, to be  installed on any new cluster
+- chosen by the developer, specific to that cluster
+- chosen by projects the developer deploys, meant to be reproducible across Pair
+  clusters.
+
+** Services chosen by the Pair Team
+All new cluster on Pair come with:
+- Domain name management and TLS Support ::
+  This means any exposed cluster service can be given a recognizable, sharable
+  url and each follow a similar pattern. If I create a pair instance named 'cool' ,
+  and a namespace called 'fun', then all services i expose from that namespace will
+  have a url of ~{SERVICENAME}.fun.cool.pair.sharing.io~
+- Prometheus and Grafana ::
+  These are dashboards for observing the health and activity of the cluster,
+  viewable at ~prometheus.cool.pair.sharing.io~ and
+  ~grafana.cool.pair.sharing.io~ (continuing the example username).
+- Knative(Serving) support ::
+  [[https://knative.dev][Knative]] is a method for running "serverless" components, or basically a solution for
+  easily deploying microservices.  A cluster can be configured to support Knative Serving
+  and Knative Events. Ours is setup for Serving
+- An in-cluster terminal/coding environment ::
+  This is [[https://github.com/sharingio/environment][sharingio/environment]], a containerized environment with a long set of
+  tools. It will be covered in more detail later in the doc as it contains much
+  of the 'pairing' part of pair.
+** Services chosen by the user
+Anytime a user requests a new cluster, they have the option to set the following, specific to that cluster:
+- Guests ::
+  Github users that you want to have access to the cluster. For any github
+  username added as a guest, Pair will fetch the user's github public keys and
+  add them to the pair Environment. They also adjust the Environment's git
+  template to include a `Co-Authored-By: Github User Name <github user email>`
+  line. This allows for the person to be able to ssh into the Pair Environment.
+- Repos ::
+  Github repositories that are cloned into the environment container upon its
+  startup. Multiple repos can be requested when creating a new cluster.
+** Services chosen by the project
+  If a github repository contains a .sharing.io folder with an init script, then
+  pair will run that script after cloning the repo into the Environment container.
+  The init scripts often include deploying project-specific services and infra to the cluster.
+
+  For example, if you request a pair instance loaded with ~cncf/apisnoop~, then
+  your instance will come with an Environemtn, along with an apisnoop namespace
+  where snoopdb is already running, and already loaded with the latest test logs
+  from kubernetes.
+
+  It could be possible to utlize the init script with the DNS of Pair to quickly deploy
+  an app with a public URL--e.g. a repo that builds and deploys a chat app available at
+  ~app.chat.cool.pair.sharing.io~
+
+** The Pair site
+Pair can also refer to the site at pair.sharing.io, which gives a limited view
+into the status and capabilities of your pair instances. From the site you can
+create a new instance via a web form, delete an instance, view the status for
+any of your instances, or download the necessary files and scripts for accessing
+an instance.
+
+Any services deployed and exposed with a url will be listed on the status page to
+quickly access them.  The status page also contains a link to the web view of the
+tmate session that is started up in the Pair Environment.
+* What is Environment?
+Environment is a highly-opinionated, containerized environment that is deployed
+to each new cluster.
+
+It's opinions can be distinguished somewhat into two categories: features that help
+with working with the Pair cluster, and features that help with programming--especially
+pair programming-- in an ii style.
+** What is "an ii style"?
+Working in org-mode on emacs to write documents interspersed with executable
+text. We are often working on kubernetes projects, with a focus on the languages
+Go, Python, and Bash. We also are often working in a tmate session, to make it
+easy to share with a remote pair partner if we need help on a project.
+
+** Quick note on ".sharing.io" versus "environment"
+Our github sharingio org has the repos ~sharingio/environment~ and ~sharingio/.sharing.io~.
+Many of the features I discuss below are held in the .sharing.io repo, but are meant to be
+used in Environment, and don't make sense without it.  To make it simpler, I am treating Environment
+as a concept, not "code that lives in a specific repo". This is so I can discuss Environment's features,
+without having to worry about where those features actually live.
+
+** Environment's cluster features
+These are features that help with working with kubernetes in general and with our pair clusters
+specifically.
+
+- Helm, kubectl, the knative cli, and similar command line tools for working with a cluster.
+- custom shell scripts, like ~pair-ssh-add-guest~ and ~pair-ssh-remove-guest~, for
+  controlling access to your cluster or bringing up sharable sessions, etc.
+
+** Environment's programming features
+- the Ubuntu OS
+- Golang and golang tools
+- Python and python tools
+- postgres and psql
+- tmate for sharing sessions
+- emacs
+- doom-emacs, a community configuration for emacs
+- go-http-server: a simple server for hosting files located at ~/public_html
+- ii's custom doom-emacs config, with preset default packages
+- ii tools, a package written in elisp, that is added to our custom emacs config
+- an instance of reveal-js multiplex, for if you are creating a presentation via
+  org-mode that you want to display online, but need to navigate the slides
+  remotely.
+
+  All of these features were added, historically, to answer the need of an ii
+  coder doing an ii project. The postgres and python support was to help develop
+  apisnoop, the golang support was to help with kubernetes test writing. The
+  revealjs multiplex service was to aid a specific need during the 2021 Canvas
+  Careers Expo. Many of the other features were added to help with developing
+  Pair itself.
+
+  In other words, we bring up a custom environment that has helped us in the
+  past and will likely help us in the future, but was not built necessarily to
+  be a "general-purpose programming environment".
+
+** Environment on Startup
+Environment is designed, on startup, to create a tmate session with our emacs loaded up in
+its first window and a shell prompt in a second window.  We will also run any init scripts in
+the repos the user specified when creating a new pair cluster.
+
+When all the scripts have run, tmate and emacs are set up, and the above tmate session is started,
+then Pair will update with a script you can copy and paste to join this tmate session.  We also
+use the built-in tmate feature of a web view to offer our web link on the pair site.
+
+** A curated selection of tools
+One aspect of Environment that I think is important to remember is that we set
+up a curated set of tools that serve a curated flow, but they aren't actually
+necessary to use Environment as a pair programming tool.
+
+For example, someone could choose to use vim instead of Emacs. They could even
+add a custom init that brings over their vim dot files to use their specific vim
+setup.
+
+We use tmate to provide the pair programming environment, but it is not
+required. In fact, it is not the first choice for many of us already using Pair,
+as it has a noticable lag and freezes. Instead, we use the Pair tool
+~pair-ssh-instance~...which, in a roundabout way, ssh's into the Environment
+container and runs a custom attach call to attach to that tmate socket with tmux
+instead (haha, i think, this can definitely be corrected). ~pair-ssh-instance~
+is faster and more reliable than tmate though, and we could have it setup to
+start a tmux session instead that we attach to.
+
+In other words, there is an large amount of freedom given to people using
+environment. We offer heavily recommended suggestions, but few constraints.
+
+Also, there are flows that work great with Pair, but are not emphasised in its
+architecture. For example, running [[https://tilt.dev/][Tilt]] as you develop in cluster, so all
+changes are immediately deployed to the cluster and accessible via url. This is
+handy, and supported, but not advertised.
+
+** Our Emacs configuration
+Emacs is a major part of our Environment setup.  It can be broken into four layers:
+- Emacs the program
+- Doom Emacs, a framework for using and configuring Emacs
+- Our custom ii elisp packages, that extend emacs support for tmate, iterm, and
+  devloping with postgres
+- Our custom doom configuration, which installs the above packages and a number
+  of others, in an idiosyncratic ii custom way.
+
+We also cache our current version of doom, as it can have a long install time and we
+want clusters to come up quickly.
+
+I bring up the layers as each need to be synced to make sure emacs works
+correctly. Emacs, doom emacs, our emacs packages, and our doom emacs config are
+each versioned, and if there is an update to one of them, without a coordinate
+update to the rest of them, then it is likely emacs will not work properly.
+Because of this, we've been conservative with updates to our custom
+configuration.
+
+The biggest difference in our configuration is the support of tmate blocks in org-mode,
+and to have these blocks open up appropriate windows in the Environment tmate session. This
+was developed so we could write executable documents in cluster, and see the output in our
+shared tmate session.
+
+* Comparisons to other solutions
+** Kind and Minikube
+Kind and Minikube are two ways to quickly run kubernetes clusters, and are often
+recommended for trying out kubernetes or trying out some new tool for kubernetes.
+
+You can compare them to Pair as all offer a simple way to create a cluster relatively quickly.
+
+The biggest differences are:
+- Pair is a production level cluster, running on bare metal equinix servers.  Kind and minikube
+  run inside docker and a virtual box respectively.  They cannot simulate a production-grade environment.
+- Pair can be easily setup as a multi-node cluster.  This is impossible with Minikube and difficult with Kind.
+- Pair offers built-in, simple DNS and name management. Neither come by default in Kind or Minikube. It is much
+  easier to access your Pair Environment and Pair cluster remotely.
+- Pair comes with an in-cluster coding environment.
+- Pair has a method for deploying services to yoru cluster given nothing but the repository link (assuming the repo has
+  a proper .sharing.io/init file)
+- Pair has a web interface for creating new clusters. Kind and Minikube are just cli.
+** Gitpod
+Gitpod creates remote, browser-based development environments that are configured based
+on a github repo.  Given a repo, it sets up a browser version of VSCode with necessary language tools
+and other configurations added.
+
+It's chief difference with Pair is one of focus.
+- Gitpod creates a custom development environment that happens to exist in a
+  container (possibly) on a
+cluster and focused on the needs of a single repository.
+- Pair creates a custom cluster, with multiple services added from multiple
+  repos, and happens to have a custom development environment that comes with
+  it.
+- Gitpod focuses on VSCode, but offers basic support for vim/emacs. Pair's
+  Environment focusses on Emacs, with no current support for any non-terminal
+  editors.
+- Gitpod is designed to give a contained, safe, reproducible space for new
+  developers. Pair offers an open and changing space for system administrators,
+  dev ops, and developers.
+** Coder
+Coder is similar to Gitpod, where its focus is to create custom development
+environments. Coder gives more customizaton options, like the computing power of
+the environment and additional processes one needs running. It is designed for
+enterprise, where you have a codebase you want to remain secure (and not on
+people's local computers), and you want a consistent coding environment across
+your staff.
+
+Coder is likely closest in features to Pair, if not with its main product than
+with what that product can allow through additional customization/development.
+
+The chief difference is mainly one of focus and intent. Like gitpod, it seems
+designed first as a development environment, with remote computation--whereas
+Pair is a cluster that has a development and pairing environment. Also, many of
+the featurees of Coder are designed for large teams that are not working on open
+source software. Pair is designed by and for pairs of people, and is open source
+from top-to-bottom.
