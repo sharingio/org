@@ -14,7 +14,7 @@ or could be", but how Pair exists now.
 - Environment ::
   The contained environment designed for the work that
   happens when using Pair. It is a pod within the pair instance that we
-  configure for a highly opininiated form of development and pairing.
+  configure for a highly opiniated form of development and pairing.
   In this case, I am talking of code held at github.com/sharingio/environment,
   at commit [[https://github.com/sharingio/environment/commit/f8dad1fe163151a4cae0bf4b962fb55a655416c0][f8dad1fe163151a4cae0bf4b962fb55a655416c0]]
 
@@ -31,7 +31,7 @@ The services that are pre-installed on the cluster are a combination of ones:
   clusters.
 
 ** Services chosen by the Pair Team
-All new cluster on Pair come with:
+All new clusters on Pair come with:
 - Domain name management and TLS Support ::
   This means any exposed cluster service can be given a recognizable, sharable
   url and each follow a similar pattern. If I create a pair instance named 'cool' ,
@@ -66,11 +66,11 @@ Anytime a user requests a new cluster, they have the option to set the following
   The init scripts often include deploying project-specific services and infra to the cluster.
 
   For example, if you request a pair instance loaded with ~cncf/apisnoop~, then
-  your instance will come with an Environemtn, along with an apisnoop namespace
+  your instance will come with an Environemnt, along with an apisnoop namespace
   where snoopdb is already running, and already loaded with the latest test logs
   from kubernetes.
 
-  It could be possible to utlize the init script with the DNS of Pair to quickly deploy
+  It could be possible to utilize the init script with the DNS of Pair to quickly deploy
   an app with a public URL--e.g. a repo that builds and deploys a chat app available at
   ~app.chat.cool.pair.sharing.io~
 
@@ -158,7 +158,7 @@ setup.
 
 We use tmate to provide the pair programming environment, but it is not
 required. In fact, it is not the first choice for many of us already using Pair,
-as it has a noticable lag and freezes. Instead, we use the Pair tool
+as it has a noticeable lag and freezes. Instead, we use the Pair tool
 ~pair-ssh-instance~...which, in a roundabout way, ssh's into the Environment
 container and runs a custom attach call to attach to that tmate socket with tmux
 instead (haha, i think, this can definitely be corrected). ~pair-ssh-instance~
@@ -178,7 +178,7 @@ Emacs is a major part of our Environment setup.  It can be broken into four laye
 - Emacs the program
 - Doom Emacs, a framework for using and configuring Emacs
 - Our custom ii elisp packages, that extend emacs support for tmate, iterm, and
-  devloping with postgres
+  developing with postgres
 - Our custom doom configuration, which installs the above packages and a number
   of others, in an idiosyncratic ii custom way.
 
@@ -234,7 +234,7 @@ cluster and focused on the needs of a single repository.
   dev ops, and developers.
 ** Coder
 Coder is similar to Gitpod, where its focus is to create custom development
-environments. Coder gives more customizaton options, like the computing power of
+environments. Coder gives more customization options, like the computing power of
 the environment and additional processes one needs running. It is designed for
 enterprise, where you have a codebase you want to remain secure (and not on
 people's local computers), and you want a consistent coding environment across
@@ -246,6 +246,6 @@ with what that product can allow through additional customization/development.
 The chief difference is mainly one of focus and intent. Like gitpod, it seems
 designed first as a development environment, with remote computation--whereas
 Pair is a cluster that has a development and pairing environment. Also, many of
-the featurees of Coder are designed for large teams that are not working on open
+the features of Coder are designed for large teams that are not working on open
 source software. Pair is designed by and for pairs of people, and is open source
 from top-to-bottom.
