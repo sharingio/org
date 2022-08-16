@@ -33,10 +33,11 @@ The services that are pre-installed on the cluster are a combination of ones:
 ** Services chosen by the Pair Team
 All new clusters on Pair come with:
 - Domain name management and TLS Support ::
-  This means any exposed cluster service can be given a recognizable, sharable
-  url and each follow a similar pattern. If I create a pair instance named 'cool' ,
-  and a namespace called 'fun', then all services i expose from that namespace will
-  have a url of ~{SERVICENAME}.fun.cool.pair.sharing.io~
+  Pair will auto-expose any process listening on a port on all interfaces. This
+  means any exposed cluster service is given a recognizable, sharable url. These
+  URLs all follow the same naming pattern: if I create a pair instance named
+  'cool', then all services I expose on that instance will have a url of
+  ~{SERVICENAME}.cool.pair.sharing.io~
 - Prometheus and Grafana ::
   These are dashboards for observing the health and activity of the cluster,
   viewable at ~prometheus.cool.pair.sharing.io~ and
