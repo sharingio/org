@@ -82,9 +82,10 @@ create a new instance via a web form, delete an instance, view the status for
 any of your instances, or download the necessary files and scripts for accessing
 an instance.
 
-Any services deployed and exposed with a url will be listed on the status page to
-quickly access them.  The status page also contains a link to the web view of the
-tmate session that is started up in the Pair Environment.
+Any services deployed and exposed with a url will be listed on the status page
+for quick access. This includes Knative services. The status page also contains
+a link to the web view of the tmate session that is started up in the Pair
+Environment.
 * What is Environment?
 Environment is a highly-opinionated, containerized environment that is deployed
 to each new cluster.
