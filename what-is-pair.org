@@ -213,7 +213,7 @@ The biggest differences are:
 - Pair offers built-in, simple DNS and name management. Neither come by default in Kind or Minikube. It is much
   easier to access your Pair Environment and Pair cluster remotely.
 - Pair comes with an in-cluster coding environment.
-- Pair has a method for deploying services to yoru cluster given nothing but the repository link (assuming the repo has
+- Pair has a method for deploying services to your cluster given nothing but the repository link (assuming the repo has
   a proper .sharing.io/init file)
 - Pair has a web interface for creating new clusters. Kind and Minikube are just cli.
 ** Gitpod
