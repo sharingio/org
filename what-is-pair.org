@@ -67,7 +67,7 @@ Anytime a user requests a new cluster, they have the option to set the following
   The init scripts often include deploying project-specific services and infra to the cluster.
 
   For example, if you request a pair instance loaded with ~cncf/apisnoop~, then
-  your instance will come with an Environemnt, along with an apisnoop namespace
+  your instance will come with an Environment, along with an apisnoop namespace
   where snoopdb is already running, and already loaded with the latest test logs
   from kubernetes.
 
