@@ -209,7 +209,7 @@ You can compare them to Pair as all offer a simple way to create a cluster relat
 The biggest differences are:
 - Pair is a production level cluster, running on bare metal equinix servers.  Kind and minikube
   run inside docker and a virtual box respectively.  They cannot simulate a production-grade environment.
-- Pair can be easily setup as a multi-node cluster.  This is impossible with Minikube and difficult with Kind.
+- Pair can be easily setup as a multi-node cluster.  This is possible with Kind too, but impossible with Minikube.
 - Pair offers built-in, simple DNS and name management. Neither come by default in Kind or Minikube. It is much
   easier to access your Pair Environment and Pair cluster remotely.
 - Pair comes with an in-cluster coding environment.
