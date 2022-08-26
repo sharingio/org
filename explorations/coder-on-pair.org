@@ -1,15 +1,13 @@
 #+title: Coder On Pair
 #+PROPERTY: header-args:bash+ :session coder :noweb yes
 
-
 * Goal
 Set up a [[https://coder.com][coder]] instance on a pair box.
-* Steps
-** Prerequisites
+* Prerequisites
 - [[https://helm.sh/docs/intro/install/][helm installed]]
-- kubectl installed
-- coder installed
-** Setup up pair box
+- [[https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/][kubectl]] installed
+- [[https://coder.com/docs/coder-oss/latest/install#installsh][coder]] installed
+* Setup up pair box
 I set up a pair box through the web form, named zim.
 Then i downloaded the kubeconfig, so that I can reach the cluster locally.
 
@@ -25,7 +23,7 @@ I can verify that I'm connected to the cluster, with the cluster-info command
 echo $(kubectl cluster-info)
 #+end_src
 
-** Fill out these forms with your own url :important:
+* Fill out these forms with your own url :important:
 You can customize this document with your own pair instance, and the rest of the code blocks
 should just work.
 
@@ -48,7 +46,7 @@ And now we can construct our coder hostname and coder url.  No need to touch the
 (concat "https://" "<<CODER-HOSTNAME()>>")
 #+end_src
 
-** Create Coder namespace
+* Create Coder namespace
 We will have all our necessary components(postgres, coder) installed into a single namespace named coder.
 
 #+begin_src zsh
@@ -58,12 +56,12 @@ kubectl create namespace coder
 #+RESULTS:
 : namespace/coder created
 
-** Deploy postgres
+* Deploy postgres
 I will follow the steps given in the coder docs.
 
 *NOTE: this is using simple, plaintext passwords.  Outside of a learning lab, these should not be used.*
 *I am keeping them in to underline that this is meant as an ephemeral, learning instance.*
-*** Deploy using helm chart
+** Deploy using helm chart
 #+begin_src bash
  helm repo add bitnami https://charts.bitnami.com/bitnami
  helm install postgres bitnami/postgresql \
@@ -76,7 +74,7 @@ I will follow the steps given in the coder docs.
 
 #+RESULTS:
 
-*** Validate it is all set up
+** Validate it is all set up
 We should have postgres up and running in our coder namespace.
 #+begin_src bash :results output
 kubectl -n coder get pods
@@ -86,8 +84,8 @@ kubectl -n coder get pods
 : NAME                    READY   STATUS    RESTARTS   AGE
 : postgres-postgresql-0   1/1     Running   0          17m
 
-** Download and customize helm charts for coder
-*** Download
+* Download and customize helm charts for coder
+** Download
 #+begin_src bash :results output
 curl -fsSL -o coder_helm_0.8.7.tgz https://github.com/coder/coder/releases/download/v0.8.7/coder_helm_0.8.7.tgz
 tree
@@ -101,7 +99,7 @@ tree
 :
 : 0 directories, 2 files
 
-*** Customize chart via values.yaml
+** Customize chart via values.yaml
 We'll create and tangle a values yaml that we'll apply with this downloaded helm chart
 
 In production, you would want to pass in values as secrets.  Since I am using a dummy password
@@ -129,7 +127,7 @@ coder:
 
 *Now, tangle them files! (C-c v t)*
 
-** Deploy Coder using Helm Charts
+* Deploy Coder using Helm Charts
 #+begin_src bash :results output
 helm install coder ./coder_helm_0.8.7.tgz \
     --namespace coder \
@@ -145,7 +143,7 @@ helm install coder ./coder_helm_0.8.7.tgz \
 : REVISION: 1
 : TEST SUITE: None
 
-*** Validate it is up
+** Validate it is up
 #+begin_src bash
 kubectl -n coder get pods
 #+end_src
@@ -155,7 +153,7 @@ kubectl -n coder get pods
 | coder-c9dccbc9f-hhf25 | 1/1   | Running |        0 | 6s  |
 | postgres-postgresql-0 | 1/1   | Running |        0 | 71m |
 
-** Create Ingress
+* Create Ingress
 This is to ensure we can reach the url from outside the cluster.
 We'll tangle this, file and then apply it with kubectl.
 
@@ -194,12 +192,12 @@ Now, we can create the ingress by applying this file using kubectl:
 kubectl -n coder apply -f ./coder-ingress.yaml
 #+end_src
 
-** Test it works
+* Test it works
 If it all worked, you should be able to visit your url (e.g. https://coder.zim.pair.sharing.io) and you'll have a setup page.
 
 There's a nice CLI with coder that is required to set the rest of the stuff up.  It is mostly interactive, though, and hard
-to simulate through src blocks here.
-** Next Steps
+to simulate through src blocks here and so this document will end here, for now.
+* Next Steps
 From here, check out the coder docs to:
 - create a template
 - build a workspace from the template
