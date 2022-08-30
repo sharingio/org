@@ -1,0 +1,67 @@
+#+title: Unable to remove instances
+#+AUTHOR: Caleb Woodbine <caleb@ii.coop>
+#+PROPERTY: header-args:shell+ :prologue "( " :epilogue " ) 2>&1 ; :" :wrap "src shell :eval no" :export both
+
+* Notes
+There are a lot of instances hanging around. Some are cleared for removable, however it appears that some are impossible for removal and result in a 500
+
+* Exploration
+The given instances to take a look at are /x1/ and /e2e/.
+
+Get all cluster-api resources with names containing the two instance names
+#+begin_src shell
+kubectl get $(kubectl api-resources | grep -E 'x-k8s' | awk '{print $1}' | xargs | tr ' ' ',') -A | grep -E 'x1|e2e'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+sharingio-pair   kubeadmcontrolplane.controlplane.cluster.x-k8s.io/e2e-control-plane                                     false         false                  0          0       0         0             26h     v1.23.5
+sharingio-pair   kubeadmcontrolplane.controlplane.cluster.x-k8s.io/x1-control-plane                                      false         false                  0          0       0         0             25h     v1.23.5
+#+end_example
+
+It appears that the only resources to exist there are the kubeadmcontrolplanes.
+This meaning that the instances failed to provision.
+
+There might have been a mid-request failure.
+
+Let's delete those two resources
+#+begin_src shell
+kubectl -n sharingio-pair delete kubeadmcontrolplane.controlplane.cluster.x-k8s.io/e2e-control-plane kubeadmcontrolplane.controlplane.cluster.x-k8s.io/x1-control-plane
+#+end_src
+
+#+RESULTS:
+#+begin_example
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io "e2e-control-plane" deleted
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io "x1-control-plane" deleted
+#+end_example
+
+This appears to have been affective, since the instances are now gone from the instances page.
+
+There's a few more that are in the same looking state, which we'll query and remove the same.
+#+begin_src shell
+kubectl get $(kubectl api-resources | grep -E 'x-k8s' | awk '{print $1}' | xargs | tr ' ' ',') -A | grep -E 'zachmandeville-hmdg|zachmandeville-z5bt|riaankl'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+sharingio-pair   kubeadmcontrolplane.controlplane.cluster.x-k8s.io/riaankl-control-plane                                 false         false                  0          0       0         0             9h      v1.23.5
+sharingio-pair   kubeadmcontrolplane.controlplane.cluster.x-k8s.io/zachmandeville-hmdg-control-plane                     false         false                  0          0       0         0             4d6h    v1.23.5
+sharingio-pair   kubeadmcontrolplane.controlplane.cluster.x-k8s.io/zachmandeville-z5bt-control-plane                     false         false                  0          0       0         0             7h35m   v1.23.5
+#+end_example
+
+Delete 'em
+
+#+begin_src shell
+kubectl -n sharingio-pair delete kubeadmcontrolplane.controlplane.cluster.x-k8s.io/riaankl-control-plane kubeadmcontrolplane.controlplane.cluster.x-k8s.io/zachmandeville-hmdg-control-plane kubeadmcontrolplane.controlplane.cluster.x-k8s.io/zachmandeville-z5bt-control-plane
+#+end_src
+
+#+RESULTS:
+#+begin_example
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io "riaankl-control-plane" deleted
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io "zachmandeville-hmdg-control-plane" deleted
+kubeadmcontrolplane.controlplane.cluster.x-k8s.io "zachmandeville-z5bt-control-plane" deleted
+#+end_example
+
+* Resolution summary
+An unknown issue has caused instances to fail to provision and only ended up creating a single resource, which does not complete the provisioning of instances.
+The resources were able to be removed and fixed the weird issue.
