@@ -1,0 +1,204 @@
+#+title: Coder On Pair
+#+PROPERTY: header-args:bash+ :session coder :noweb yes
+
+* Goal
+Set up a [[https://coder.com][coder]] instance on a pair box.
+* Prerequisites
+- [[https://helm.sh/docs/intro/install/][helm installed]]
+- [[https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/][kubectl]] installed
+- [[https://coder.com/docs/coder-oss/latest/install#installsh][coder]] installed
+* Setup up pair box
+I set up a pair box through the web form, named zim.
+Then i downloaded the kubeconfig, so that I can reach the cluster locally.
+
+After downloading, I placed my kubeconfig at ~\~/.config/kube/zim-config~
+then set it to my current config with
+
+#+begin_src bash :results silent
+export KUBECONFIG=~/.config/kube/zim-config
+#+end_src
+
+I can verify that I'm connected to the cluster, with the cluster-info command
+#+begin_src bash :session coder
+echo $(kubectl cluster-info)
+#+end_src
+
+* Fill out these forms with your own url :important:
+You can customize this document with your own pair instance, and the rest of the code blocks
+should just work.
+
+Adjust the below code block to your own pair name. Note the lack of https.
+
+#+NAME: PAIR-INSTANCE
+#+begin_src elisp
+zim.pair.sharing.io
+#+end_src
+
+And now we can construct our coder hostname and coder url.  No need to touch the below blocks.
+
+#+NAME: CODER-HOSTNAME
+#+begin_src elisp :noweb yes
+(concat "coder." "<<PAIR-INSTANCE>>")
+#+end_src
+
+#+NAME: CODER-URL
+#+begin_src elisp :noweb yes
+(concat "https://" "<<CODER-HOSTNAME()>>")
+#+end_src
+
+* Create Coder namespace
+We will have all our necessary components(postgres, coder) installed into a single namespace named coder.
+
+#+begin_src zsh
+kubectl create namespace coder
+#+end_src
+
+#+RESULTS:
+: namespace/coder created
+
+* Deploy postgres
+I will follow the steps given in the coder docs.
+
+*NOTE: this is using simple, plaintext passwords.  Outside of a learning lab, these should not be used.*
+*I am keeping them in to underline that this is meant as an ephemeral, learning instance.*
+** Deploy using helm chart
+#+begin_src bash
+ helm repo add bitnami https://charts.bitnami.com/bitnami
+ helm install postgres bitnami/postgresql \
+    --namespace coder \
+    --set auth.username=coder \
+    --set auth.password=coder \
+    --set auth.database=coder \
+    --set persistence.size=10Gi
+#+end_src
+
+#+RESULTS:
+
+** Validate it is all set up
+We should have postgres up and running in our coder namespace.
+#+begin_src bash :results output
+kubectl -n coder get pods
+#+end_src
+
+#+RESULTS:
+: NAME                    READY   STATUS    RESTARTS   AGE
+: postgres-postgresql-0   1/1     Running   0          17m
+
+* Download and customize helm charts for coder
+** Download
+#+begin_src bash :results output
+curl -fsSL -o coder_helm_0.8.7.tgz https://github.com/coder/coder/releases/download/v0.8.7/coder_helm_0.8.7.tgz
+tree
+#+end_src
+
+#+RESULTS:
+:
+: .
+: ├── coder-on-pair.org
+: └── coder_helm_0.8.7.tgz
+:
+: 0 directories, 2 files
+
+** Customize chart via values.yaml
+We'll create and tangle a values yaml that we'll apply with this downloaded helm chart
+
+In production, you would want to pass in values as secrets.  Since I am using a dummy password
+on an ephemeral instance, I can put the values in directly.  This hopefully makes the yaml a bit
+easier to track.
+
+Our connection string, using the dummy passwords and coder's default url will be:
+
+#+NAME: DB-CONNECTION-STRING
+#+begin_src elisp
+postgres://coder:coder@postgres-postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable
+#+end_src
+
+#+NAME: values.yaml
+#+begin_src yaml :tangle values.yaml :noweb yes
+coder:
+  env:
+    - name: CODER_ACCESS_UR L
+      value: <<CODER-URL()>>
+    - name: CODER_PG_CONNECTION_URL
+      value: <<DB-CONNECTION-STRING>>
+  tls:
+    secretName: null
+#+end_src
+
+*Now, tangle them files! (C-c v t)*
+
+* Deploy Coder using Helm Charts
+#+begin_src bash :results output
+helm install coder ./coder_helm_0.8.7.tgz \
+    --namespace coder \
+    --values values.yaml
+#+end_src
+
+#+RESULTS:
+:
+: > NAME: coder
+: LAST DEPLOYED: Fri Aug 26 13:04:31 2022
+: NAMESPACE: coder
+: STATUS: deployed
+: REVISION: 1
+: TEST SUITE: None
+
+** Validate it is up
+#+begin_src bash
+kubectl -n coder get pods
+#+end_src
+
+#+RESULTS:
+| NAME                  | READY | STATUS  | RESTARTS | AGE |
+| coder-c9dccbc9f-hhf25 | 1/1   | Running |        0 | 6s  |
+| postgres-postgresql-0 | 1/1   | Running |        0 | 71m |
+
+* Create Ingress
+This is to ensure we can reach the url from outside the cluster.
+We'll tangle this, file and then apply it with kubectl.
+
+#+begin_src yaml :tangle coder-ingress.yaml :noweb yes
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: contour-external
+  name: coder
+  namespace: coder
+spec:
+  rules:
+  - host: <<CODER-HOSTNAME()>>
+    http:
+      paths:
+      - backend:
+          service:
+            name: coder
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - <<CODER-HOSTNAME()>>
+    secretName: letsencrypt-prod
+status:
+  loadBalancer: {}
+#+end_src
+
+**tangle them files again!**
+Now, we can create the ingress by applying this file using kubectl:
+
+#+begin_src bash
+kubectl -n coder apply -f ./coder-ingress.yaml
+#+end_src
+
+* Test it works
+If it all worked, you should be able to visit your url (e.g. https://coder.zim.pair.sharing.io) and you'll have a setup page.
+
+There's a nice CLI with coder that is required to set the rest of the stuff up.  It is mostly interactive, though, and hard
+to simulate through src blocks here and so this document will end here, for now.
+* Next Steps
+From here, check out the coder docs to:
+- create a template
+- build a workspace from the template
+- use vscode in browser via the workspace
