@@ -1,0 +1,56 @@
+#+title: Pair Statement Of Work
+#+published: [2022-08-19 Fri]
+
+* Introduction
+This describes the work to be done on our internal tool Pair.
+This work is to make Pair (as it is described in "[[file:what-is-pair.org][What is Pair?]]")
+more reliable, easier maintain, and easier to use.
+* The Goal of Work
+We want to rebuild Pair with stronger software design, so that we can continue
+to benefit from its features, but improve the developer experience for
+maintaining and building atop it. Improving the underlying design of the
+software will lead to improvements in the user experience, as the system will be
+quicker, more coherently structured and documented, and with less untracable
+errors.
+
+One of the big parts of this work is the design and implementation of a Pair
+API. This would be an interface for working with the backend cluster management,
+but in a more ordered and logical way. This would also allow for multiple
+clients: eg. a web and terminal client.
+
+Another big goal of the work is to decouple Pair from github so that none of our core
+business requires a dependency on github (e.g. for logging in or user role management).
+* In Scope
+- Designing the public API for Pair
+- Building a new backend to serve this API
+- Building a new frontend for this api
+- Re-implementing all existing features in a more solid way
+- Centralized logging
+- New authentication (without requiring github)
+- Address and fix open bug tickets.
+- Documentation and Onboarding Guides
+* Out of scope
+This work is explicitly separate from other projects currently in-development
+under the name Pair. This includes the mentorship project with LXF.    Any of
+the big features for those projects would be out-of-scope of this one since they
+are distinct projects.  This includes:
+
+- VSCode/VSCodium integration
+- integrating Pair with coder.com
+
+* Technical Requirements
+- Written in languages ii uses: Golang and Clojure, with priority given to Golang.
+- Unit tests
+- Full documentation:
+   - how to use
+   - how to contribute
+   - how to self-host
+- should run on equinix metal
+* Milestones
+** Design and share public API
+** Draft and share a Design Doc
+** Build authentication
+** Build backend to server API
+** Build webclient for API
+** Publish documentation for existing set
+** Build cli client for API
